@@ -1,4 +1,4 @@
-import { Component, OnDestroy, signal} from '@angular/core';
+import { Component, signal} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { RouterOutlet } from '@angular/router';
 import { Service } from './servicios/service';
@@ -10,22 +10,31 @@ import { Service } from './servicios/service';
   styleUrl: './app.css'
 })
 export class App {
-   protected readonly title = signal('cronometro');
-
+  
+ readonly title = signal('cronometro');
   tiempo = signal(0);
   private subscripcion?: Subscription;
+  private running = signal(false);
 
-  constructor(private cronometroService : Service){}
+  constructor(private cronometroService: Service) {}
 
-  empezar(): void{
-    if(!this.subscripcion){
-      this.subscripcion = this.cronometroService.crearObservableCronometro().subscribe(seg => this.tiempo.set( seg ))
-    }
+  empezar(): void {
+    if (this.running()) return; // ya está corriendo
+    this.running.set(true);
+    this.subscripcion = this.cronometroService
+      .crearObservableCronometro()
+      .subscribe(seg => this.tiempo.set(seg));
   }
 
-  reiniciar(): void{
-    this.subscripcion?.unsubscribe();
+  reiniciar(): void {
+    this.detener();
     this.tiempo.set(0);
-    this.subscripcion = this.cronometroService.crearObservableCronometro().subscribe(seg => this.tiempo.set( seg ))
+    this.empezar();
+  }
+
+  detener(): void {
+    this.subscripcion?.unsubscribe();
+    this.subscripcion = undefined;
+    this.running.set(false);
   }
 }
