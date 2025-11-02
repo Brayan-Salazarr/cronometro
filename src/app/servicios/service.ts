@@ -1,23 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Observable, interval, BehaviorSubject, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { interval, Observable, scan } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Service {
+constructor() {}
 
-  constructor() {}
-
-  crearObservableCronometro() : Observable<number>{
-    return new Observable(observer => {
-      let contador = 0;
-      const intervalo = setInterval(()=> {
-        contador++;
-        observer.next(contador);
-      },1000);
-
-      return () => clearInterval(intervalo); 
-    });
+crearObservableCronometro(): Observable<number> {
+    return interval(1000).pipe(
+      scan((contador) => contador + 1, 0)
+    );
   }
 }
