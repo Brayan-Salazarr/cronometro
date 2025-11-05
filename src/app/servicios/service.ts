@@ -5,7 +5,6 @@ import { interval, Observable, scan } from 'rxjs';
   providedIn: 'root'
 })
 export class Service {
-constructor() {}
 
 crearObservableCronometro(): Observable<number> {
     return interval(1000).pipe(
